@@ -8,7 +8,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 * This is currently made for a 1280x600 resolution.  I have tried to make this a function of ResolutionX and ResolutionY, but I cannot guarantee that anything that isn't 1280x600 will have clicks in the proper locations.
 
-* This is limited by your processor speed, you can configure its delay by changing the Thread.Sleep argument in induceclick().  I'm capable of running it with a 125ms delay on a budget gaming laptop from 2016, so I'd generally be inclined to say you can run it faster.  I would generally recommend not running this when anything you care about is craftable, just in case of a data entry issue on your part, but especially not when it's in either R1c1 or R1c2, as these correspond to menu items and can easily be mulched if you aren't careful.  This especially goes if you're trying to figure out what you want for your delay.
+* This is limited by your processor speed, you can configure its delay by changing the Thread.Sleep argument in induceclick().  I'm capable of running it with a 125ms delay on a budget gaming laptop from 2016, so I'd generally be inclined to say you can run it faster.  I would generally recommend not running this when anything you care about is craftable, just in case of a data entry issue on your part, but especially not when it's in either R0c1 or R0c2, as these correspond to menu items and can easily be mulched if you aren't careful.  This especially goes if you're trying to figure out what you want for your delay.
 
 * Additionally, the speed at which inventory loads is influenced by your backpack size.  I get desyncs if my backpack size goes over 750, it can be thinned out just by exchanging a ref stockpile for keys.
 
