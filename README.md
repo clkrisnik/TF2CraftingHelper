@@ -8,7 +8,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 2. The rows and cols are base 0, and page 2 r0c1 would be noted as r3c1.
 
-![row and col guides](https://i.imgur.com/zY4yJOX.png)
+![row and col guides](https://i.imgur.com/W3TnrRC.png)
 
 3. Enter each class token part into the prompt, in order of row, column, quantity.  Once you are done, put something that isn't a number (besides the letter "w", which is used for wildcard resolution) into the row prompt.  It will then prompt you for slot tokens in the same order, once done, put in a non-number.  Press any key, go back into your tf2 window, and wait a bit.  I always liked putting up the fabricate class weapons menu once or twice while I waited, the first one seems to take ever-so-slightly longer.
 
