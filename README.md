@@ -2,6 +2,13 @@
 
 Weapon crafting in TF2 is known to be profitable, given a huge sample size, but it's generally considered to be not worth the time spent on the menial task of individually clicking each weapon, and the associated arm strain.  This automates the process to some extent, you look at where the items you want to craft are in your inventory, enter it into the program, and then let it go to work mulching all of them.
 
+## How to use
+
+1. Launch TF2.  Go to the crafting menu, select either "Fabricate Class Token" or "Fabricate Slot Token", click the first slot, and note the location of the items you wish to craft.
+2. The rows and cols are base 0, and page 2 r0c1 would be noted as r3c1.
+3. Enter each class token part into the prompt, in order of row, column, quantity.  Once you are done, put something that isn't a number (besides the letter "w", which is used for wildcard resolution) into the row prompt.  It will then prompt you for slot tokens in the same order, once done, put in a non-number.  Press any key, go back into your tf2 window, and wait a bit.  I always liked putting up the fabricate class weapons menu once or twice while I waited, the first one seems to take ever-so-slightly longer.
+4. Watch the tokens get created, watch ref get smelted (meditate for a moment on the fact that this is the most profitable way to destroy ref, and this does so incredibly slowly), and watch the tokens get crafted, if you get even below-average luck, you will likely profit.
+
 ## Limitations
 
 * Some problems that properly selecting and decrementing aren't possible to resolve without some kind of OCR or mapping out 18 additional coordinates for the blue text that denotes the x in the top left corner (by the way, this would break for multiple stacks of 1, both not bearing an X).
@@ -21,3 +28,8 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 * Wildcard deduction is a bit of a mess.  If a stack is finished off as the third entry where the first 2 are wildcards, it will not properly decrement the slot of every remaining weapon.  Decrementing count of the stack works, though, so I would recommend, right after a wildcard entry of n, try entering a stack of at least 1/2n for a non-wildcard entry.
 
 * If you're crafting a number of weapons for class tokens that is indivisible by 3, the last craft will take 1 or 2 weapons, **deduct the stack entirely**, and move on, despite those weapons not having actually been destroyed.  If there are slot token items after this last class weapon slot, the inventory slot for all of these will be wrong.
+
+## To do
+
+* If a batch is interrupted, maybe have the option of manually putting in how much ref you wish to smelt, and how many crafts you wish to do.
+
