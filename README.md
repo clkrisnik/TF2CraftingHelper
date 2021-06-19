@@ -2,7 +2,7 @@
 
 Weapon crafting in TF2 is known to be profitable, given a huge sample size, but it's generally considered to be not worth the time spent on the menial task of individually clicking each weapon, and the associated arm strain.  This automates the process to some extent, you look at where the items you want to craft are in your inventory, enter it into the program, and then let it go to work mulching all of them.
 
-##Limitations
+## Limitations
 
 * Some problems that properly selecting and decrementing aren't possible to resolve without some kind of OCR or mapping out 18 additional coordinates for the blue text that denotes the x in the top left corner (by the way, this would break for multiple stacks of 1, both not bearing an X).
 
@@ -16,7 +16,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 * This stacking issue is relevant with respect to wildcards, if the wildcard item deducts from a large stack expecting a stack of 1, the slot will be wrong, and vice versa.  Manually crafting these gifted/crafted items doesn't take much time, minimizes the chance of a data entry error, and minimizes the chance of a wrong stack deduction error.
 
-##Known issues
+## Known issues
 
 * Wildcard deduction is a bit of a mess.  If a stack is finished off as the third entry where the first 2 are wildcards, it will not properly decrement the slot of every remaining weapon.  Decrementing count of the stack works, though, so I would recommend, right after a wildcard entry of n, try entering a stack of at least 1/2n for a non-wildcard entry.
 
