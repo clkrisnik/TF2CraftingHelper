@@ -10,7 +10,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 ![row and col guides](https://i.imgur.com/W3TnrRC.png)
 
-3. Enter each class token part into the prompt, in order of row, column, quantity.  Once you are done, put something that isn't a number (besides the letter "w", which is used for wildcard resolution) into the row prompt.  It will then prompt you for slot tokens in the same order, once done, put in a non-number.  Press any key, go back into your tf2 window, and wait a bit.  I always liked putting up the fabricate class weapons menu once or twice while I waited, the first one seems to take ever-so-slightly longer.
+3. Enter each class token part into the prompt, in order of row, column, quantity.  In the case of a wildcard item (e.g. reserve shooter), you would note that as 1, 1, 1w.  Once you are done, put something that isn't a number (besides the letter "w", which is used for wildcard resolution) into the row prompt.  It will then prompt you for slot tokens in the same order, once done, put in a non-number in the row prompt.  Press any key, go back into your tf2 window, and wait a bit.  I always liked putting up the fabricate class weapons menu once or twice while I waited, the first one seems to take ever-so-slightly longer.
 
 4. Watch the tokens get created, watch ref get smelted (meditate for a moment on the fact that this is the most profitable way to destroy ref, and this does so incredibly slowly), and watch the tokens get crafted, if you get even below-average luck, you will likely profit.
 
