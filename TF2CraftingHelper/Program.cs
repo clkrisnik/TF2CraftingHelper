@@ -60,6 +60,7 @@ namespace TF2CraftingHelper
             bool wildcardflag = false;
             int wildcardct = 0;
             int nonwildcardct = 0;
+            int refct = 0;
             int i = 0;//will have to be done for ref counts.
                       //to get to the center of the top left one, it'd be about 337 length 195 height
                       //to get to the center of the next one on the top it'd be about 456 length
@@ -83,6 +84,37 @@ namespace TF2CraftingHelper
             Tuple<int, int> continuebuttoncoords = Tuple.Create<int, int>((int)(.6758 * ResolutionX), (int)(.9033 * ResolutionY));
             //next button is at 982 length 453 height
             Tuple<int, int> nextbuttoncoords = Tuple.Create<int, int>((int)(.7672 * ResolutionX), (int)(.755 * ResolutionY));
+
+            //first of all, let's see if i put in any args.
+            //-help shows a help menu related to args, 
+            //-s [X] immediately skips to smelting ref, smelts x amount of ref and gets to crafting the requisite amount of tokens (may have to alt-tab out of it, can be up to 8 excess)
+            //-c [X] immediately skips to crafting tokens, crafts x tokens, assumes scrap metal and the tokens are already there
+            if (args.Length>0)
+            {
+                if (args[0].ToLower() == "-s")
+                {
+                    refct = Convert.ToInt32(args[1]);
+                    totaltokens = refct * 9;
+                    //have to ruin one of my input args to skip past class/slot crafting
+                    slotrow = null;
+                }
+                else if (args[0].ToLower() == "-c")
+                {
+                    totaltokens = Convert.ToInt32(args[1]);
+                    refct = 0;
+                    slotrow = null;
+                }
+                else
+                {
+                    Console.WriteLine("Arguments for TF2CraftingHelper:");
+                    Console.WriteLine("-s X will skip token prompting and smelt X metal, and attempt to craft X*9 tokens.");
+                    Console.WriteLine("-c X will skip token prompting and metal smelting and attempt to craft X tokens.");
+                    Console.WriteLine("Any other args will show this menu, and running with no arguments will prompt class, slot like usual.");
+                    return;
+                }
+            }
+
+
             while (Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
             {
                 wildcardflag = false;
@@ -116,12 +148,14 @@ namespace TF2CraftingHelper
             }
 
             //the class token items are entered.  time to get a slot token prompt.  it's about the same.
-            //notable that while there are indeed wildcards in terms of slots, most notably the panic attack, it's also true that:
-            //a. scrap.tf seems to never have a serious amount of them in stock, which is the whole reason i implemented wildcard detection for the reserve shooter
-            //b. i dun wanna
-            slotrow = "1";
-            slotcol = "1";
-            qty = "1";
+            //notable that while there are indeed wildcards in terms of slots, most notably the panic attack, it's also true that
+            //scrap.tf seems to never have a serious amount of them in stock, which is the whole reason i implemented wildcard detection for the reserve shooter
+            if (!String.IsNullOrEmpty(slotrow))
+            {
+                slotrow = "1";
+                slotcol = "1";
+                qty = "1";
+            }
             while (Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
             {
 
@@ -141,8 +175,11 @@ namespace TF2CraftingHelper
                     }
                 }
             }
-            totaltokens = Math.Max(slottokens.Sum(s => s.quantity) / 3, classtokens.Sum(c => c.quantity) / 3);
-            int refct = (int)Math.Ceiling(Math.Max(slottokens.Sum(s => s.quantity)/27.0, classtokens.Sum(c => c.quantity)/27.0));
+            if (!String.IsNullOrEmpty(slotrow))
+            {
+                totaltokens = Math.Max(slottokens.Sum(s => s.quantity) / 3, classtokens.Sum(c => c.quantity) / 3);
+                refct = (int)Math.Ceiling(Math.Max(slottokens.Sum(s => s.quantity) / 27.0, classtokens.Sum(c => c.quantity) / 27.0));
+            }
             //okay, so i've got the easy console application prompt stuff knocked out in like 15 minutes.  time for the big boy problem:  determine where:
             //each slot in the grid lies, probably can make this a function of pixels rather than hardcoding in spots for all the 18 slots
             //each next button.  i think i'm going to put in the bare minimum on the paging part, i'm sure there's efficiency in paging that i can get to, but god i don't want to make you put in anotehr prompt. this ship has one setting, baby, and it's forward!
@@ -156,12 +193,13 @@ namespace TF2CraftingHelper
             //but i'll use these coords.  they surely aren't all dead center, but i think they will be sufficient such that when you click on them, you will go into their respective menus
             //smelt ref is 348 337
             //smelt rec is 348 319
-            //notable that the metal will always be in slot 1 for these, so i can just click r1c2 repeatedly
+            //notable that the metal will always be in slot 1 for these, so i can just click r0c1 repeatedly
             //344 137 is the second crafting menu
             //fabricate class weapons should be at 358 175
-            //same thing as the metal, repeatedly click r1c2.  it's also the same positions as the create token
+            //same thing as the metal, repeatedly click r0c1.  it's also the same positions as the create token
             //i want to make sure there's a wait though.  like a second on this last step
             //i like it because it's gambling, not because it's perfectly efficient.
+            //anyway, even if you use the args, you're going to have to alt-tab back in. 10 seconds is a bit conservative, but i haven't been too concerned about slimming that part down
             Console.WriteLine("You have 10 seconds upon continuing to launch tf2, in the crafting menu.  If you aren't prepared, do it now and then continue the program.");
             Console.WriteLine("Press any key to continue.");
             Console.ReadKey();
@@ -431,7 +469,7 @@ namespace TF2CraftingHelper
                 Thread.Sleep(100);
                 induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
             }
-            //the tokens are created, the metal is scrapped, and now time for the sexy part:  gambling!!!!!!!!!!!!!!!!!!!!!
+            //the tokens are created, the metal is scrapped, and now time for gambling.
 
             startfabclassweps();
             int j = 0;
@@ -445,7 +483,7 @@ namespace TF2CraftingHelper
                 }
                 induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                 clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(500);//admiring gambling results.  this can be changed to 125 ms, which is about what i think is needed to guarantee the continue button works
+                Thread.Sleep(400);//admiring gambling results.  this can be changed to 125 ms, which is about what i think is needed to guarantee the continue button works
                 induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
             }
             Console.ReadKey();
@@ -503,6 +541,7 @@ namespace TF2CraftingHelper
         
         public static Color GetColorAt(Point location)
         {
+            //necessary for busy wait on craft button.
             Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
             using (Graphics gdest = Graphics.FromImage(screenPixel))
             {
@@ -543,7 +582,7 @@ namespace TF2CraftingHelper
         public static void induceclick(int x, int y)
         {
 
-            Console.WriteLine("click at x: " + x + " y: "+y);
+            //Console.WriteLine("click at x: " + x + " y: "+y);
             
             SetCursorPos(x,y);
             Thread.Sleep(125);//need to figure out minimum time for cursor input to be registered
