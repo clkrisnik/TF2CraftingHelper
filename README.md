@@ -38,4 +38,4 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 * Command line arguments have been implemented, but combining them is currently not.  Allow use of -s and -c together.
 * Allow -smelt and -craft to be used as aliases for these.
 * Maybe make a flag that will allow 4 arguments per item, position and quantity like usual, as well as stack count, which can help if you picked up 20+ crafted items each with their own individual stack, rather than entering all of them as r c 1, or manually crafting them first.
-
+* Make a command-line flag that will configure the delay between clicks so it doesn't have to be recompiled to get a new delay.
