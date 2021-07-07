@@ -31,7 +31,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 ## Known issues
 
 * If you're crafting a number of weapons for class tokens that is indivisible by 3, the last craft will take 1 or 2 weapons, **deduct the stack entirely**, and move on, despite those weapons not having actually been destroyed.  If there are slot token items after this last class weapon slot, the inventory slot for all of these will be wrong.
-* If you're crafting with wildcards, and the wildcard
+* If you're crafting with wildcards, and the wildcard is between 2 non-wildcard stacks, and the stack before it is deducted before completing a set of 3, the third one will be the first non-wildcard element.  This can either look silly (if you aren't using many wildcards), or make you end up with a stack of 3 wildcards only at the end of class token crafting (if you are)
 
 ## To do
 
