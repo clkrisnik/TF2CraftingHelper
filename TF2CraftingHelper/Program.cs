@@ -91,24 +91,38 @@ namespace TF2CraftingHelper
             //-c [X] immediately skips to crafting tokens, crafts x tokens, assumes scrap metal and the tokens are already there
             if (args.Length>0)
             {
-                if (args[0].ToLower() == "-s")
+                if (args[0].ToLower() == "-s"||args[0].ToLower()=="-smelt")
                 {
                     refct = Convert.ToInt32(args[1]);
                     totaltokens = refct * 9;
                     //have to ruin one of my input args to skip past class/slot crafting
                     slotrow = null;
+                    if (args.Length > 2)
+                    {
+                        if (args[2].ToLower() == "-c" || args[2].ToLower() == "-craft")
+                        {
+                            totaltokens = Convert.ToInt32(args[3]);
+                        }
+                    }
                 }
-                else if (args[0].ToLower() == "-c")
+                else if (args[0].ToLower() == "-c"||args[0].ToLower()=="-craft")
                 {
                     totaltokens = Convert.ToInt32(args[1]);
                     refct = 0;
                     slotrow = null;
+                    if (args.Length > 2)
+                    {
+                        if (args[2].ToLower() == "-s" || args[2].ToLower() == "-smelt")
+                        {
+                            refct = Convert.ToInt32(args[3]);
+                        }
+                    }
                 }
                 else
                 {
                     Console.WriteLine("Arguments for TF2CraftingHelper:");
-                    Console.WriteLine("-s X will skip token prompting and smelt X metal, and attempt to craft X*9 tokens.");
-                    Console.WriteLine("-c X will skip token prompting and metal smelting and attempt to craft X tokens.");
+                    Console.WriteLine("-s/-smelt X will skip token prompting and smelt X metal, and attempt to craft X*9 tokens.");
+                    Console.WriteLine("-c/-craft X will skip token prompting and metal smelting and attempt to craft X tokens.");
                     Console.WriteLine("Any other args will show this menu, and running with no arguments will prompt class, slot like usual.");
                     return;
                 }
@@ -230,7 +244,58 @@ namespace TF2CraftingHelper
                         temptoprow = toprow;
                         
 
-                        if (i == 2 && classtokens.First().wildcard == true &&nonwildcardct>=1)
+                        
+                        if (classtokens.First().wildcard == false && nonwildcardct * 2 < wildcardct)
+                        {
+                            //use wildcard, and deduct wildcard
+                            wildcardct--;
+                            int savetemptoprow = temptoprow;
+                            int savetemptopcol = topcol;
+
+                            temptoprow = classtokens.Where(c => c.wildcard == true).First().slot / 6;
+                            topcol = classtokens.Where(c => c.wildcard == true).First().slot % 6;
+
+                            classtokens.First(c => c.wildcard == true).quantity--;
+
+                            while (temptoprow > 2)
+                            {
+                                induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
+                                temptoprow -= 3;
+                                Console.WriteLine("going to next page");
+                            }
+                            induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
+
+                            if (classtokens.First(c => c.wildcard == true).quantity <= 0)
+                            {
+
+                                foreach (InventoryItem item in classtokens)
+                                {
+                                    if (item.slot > classtokens.ElementAt(0).slot)
+                                    {
+                                        item.slot -= 1;
+                                    }
+                                }
+                                foreach (InventoryItem item in slottokens)
+                                {
+                                    if (item.slot > classtokens.ElementAt(0).slot)
+                                    {
+                                        item.slot -= 1;
+                                    }
+                                }
+                                classtokens.Remove(classtokens.Where(c => c.wildcard == true).First());
+                                if (classtokens.Any())
+                                {
+                                    toprow = classtokens.First().slot / 6;
+                                    topcol = classtokens.First().slot % 6;
+                                }
+                            }
+                            else
+                            {
+                                temptoprow = savetemptoprow;
+                                topcol = savetemptopcol;
+                            }
+                        }
+                        else if (i == 2 && classtokens.First().wildcard == true && nonwildcardct >= 1 && nonwildcardct * 2 >= wildcardct)
                         {
                             //use first non-wildcard, deduct it
                             nonwildcardct--;
@@ -281,56 +346,6 @@ namespace TF2CraftingHelper
                             }
 
 
-                        }
-                        else if (classtokens.First().wildcard == false && nonwildcardct * 2 < wildcardct)
-                        {
-                            //use wildcard, and deduct wildcard
-                            wildcardct--;
-                            int savetemptoprow = temptoprow;
-                            int savetemptopcol = topcol;
-
-                            temptoprow = classtokens.Where(c => c.wildcard == true).First().slot / 6;
-                            topcol = classtokens.Where(c => c.wildcard == true).First().slot % 6;
-
-                            classtokens.First(c => c.wildcard == true).quantity--;
-
-                            while (temptoprow > 2)
-                            {
-                                induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
-                                temptoprow -= 3;
-                                Console.WriteLine("going to next page");
-                            }
-                            induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
-
-                            if (classtokens.First(c => c.wildcard == true).quantity <= 0)
-                            {
-
-                                foreach (InventoryItem item in classtokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
-                                foreach (InventoryItem item in slottokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
-                                classtokens.Remove(classtokens.Where(c => c.wildcard == true).First());
-                                if (classtokens.Any())
-                                {
-                                    toprow = classtokens.First().slot / 6;
-                                    topcol = classtokens.First().slot % 6;
-                                }
-                            }
-                            else
-                            {
-                                temptoprow = savetemptoprow;
-                                topcol = savetemptopcol;
-                            }
                         }
                         else
                         {
@@ -383,7 +398,7 @@ namespace TF2CraftingHelper
                     {
                         induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                         clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                        Thread.Sleep(100);
+                        Thread.Sleep(125);
                         induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
                         Console.WriteLine("one craft done");
                     }
@@ -441,7 +456,7 @@ namespace TF2CraftingHelper
                     }
                     induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                     clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                    Thread.Sleep(100);
+                    Thread.Sleep(125);
                     induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
                     Console.WriteLine("one craft done");
                 }
@@ -454,7 +469,7 @@ namespace TF2CraftingHelper
                 induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
                 induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                 clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(100);
+                Thread.Sleep(125);
                 induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
             }
 
@@ -466,7 +481,7 @@ namespace TF2CraftingHelper
                 induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
                 induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                 clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(100);
+                Thread.Sleep(125);
                 induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
             }
             //the tokens are created, the metal is scrapped, and now time for gambling.
@@ -483,7 +498,7 @@ namespace TF2CraftingHelper
                 }
                 induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
                 clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(400);//admiring gambling results.  this can be changed to 125 ms, which is about what i think is needed to guarantee the continue button works
+                Thread.Sleep(500);//admiring gambling results.  oddly, this wait menu takes the longest.  400 OFTEN works, but can desync once every 50 times or so.
                 induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
             }
             Console.ReadKey();
@@ -563,11 +578,11 @@ namespace TF2CraftingHelper
             //there's a busy wait component to this one
             Point craftpixel = new Point(x, y);
             Color btncolor;
-            int i = 0;//note that using an indivisible amount may cause some hanging... you can obviously manually resolve it, but i think i'll try instead to cut it off at 5s
+            int i = 0;//note that using an indivisible amount of weapons may cause some hanging... you can obviously manually resolve it, but i think i'll try instead to cut it off at 5s
             bool craftdone = false;
             while (!craftdone&&i<50)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(125);
                 i++;
                 btncolor=GetColorAt(craftpixel);
                 if (btncolor.R > 100)
