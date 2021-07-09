@@ -24,17 +24,18 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 * Additionally, the speed at which inventory loads is influenced by your backpack size.  I get desyncs if my backpack size goes over 750, it can be thinned out just by exchanging a ref stockpile for keys.
 
-* Occasionally, if you have an item that's stacked alongside another identical one that's in a different stack for some reason (e.g. contract reward, crafted text, gifted text), the order of these 2 stacks is essentially random.  This does not apply to achievement items, they will be in the same stack as any other craft wep.  If they're on your last page, they won't get mulched.  However, I would enter these last (or just get non-craftable versions of any unique weapon you want to keep, it's only a scrap per)
+* Occasionally, if you have an item that's stacked alongside another identical one that's in a different stack for some reason (e.g. contract reward, crafted text, gifted text), the order of these 2 stacks is essentially random.  This does not apply to achievement items, they will be in the same stack as any other craft wep.  If they're on your last page, they won't get mulched.  However, I would enter these last (or just get non-craftable versions of any unique weapon you want to keep, it's only a scrap per).
 
 * This stacking issue is relevant with respect to wildcards, if the wildcard item deducts from a large stack expecting a stack of 1, the slot will be wrong, and vice versa.  Manually crafting these gifted/crafted items doesn't take much time, minimizes the chance of a data entry error, and minimizes the chance of a wrong stack deduction error.
 
 ## Known issues
 
-* Wildcard deduction is a bit of a mess.  If a stack is finished off as the third entry where the first 2 are wildcards, it will not properly decrement the slot of every remaining weapon.  Decrementing count of the stack works, though, so I would recommend, right after a wildcard entry of n, try entering a stack of at least 1/2n for a non-wildcard entry.
-
 * If you're crafting a number of weapons for class tokens that is indivisible by 3, the last craft will take 1 or 2 weapons, **deduct the stack entirely**, and move on, despite those weapons not having actually been destroyed.  If there are slot token items after this last class weapon slot, the inventory slot for all of these will be wrong.
+* If you're crafting with wildcards, and the wildcard is between 2 non-wildcard stacks, and the stack before it is deducted before completing a set of 3, the third one will be the first non-wildcard element.  This can either look silly (if you aren't using many wildcards), or make you end up with a stack of 3 wildcards only at the end of class token crafting (if you are)
 
 ## To do
 
-* If a batch is interrupted, maybe have the option of manually putting in how much ref you wish to smelt, and how many crafts you wish to do.
-
+* Command line arguments have been implemented, but combining them is currently not.  Allow use of -s and -c together.
+* Allow -smelt and -craft to be used as aliases for these.
+* Maybe make a flag that will allow 4 arguments per item, position and quantity like usual, as well as stack count, which can help if you picked up 20+ crafted items each with their own individual stack, rather than entering all of them as r c 1, or manually crafting them first.
+* Make a command-line flag that will configure the delay between clicks so it doesn't have to be recompiled to get a new delay.
