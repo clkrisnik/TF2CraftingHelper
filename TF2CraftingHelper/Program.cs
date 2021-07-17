@@ -40,6 +40,8 @@ namespace TF2CraftingHelper
         public const int ResolutionX = 1280;
         public const int ResolutionY = 600;
 
+        public static int delay = 125;//time in ms between each click.  can be configured with the -d/-delay flag
+
         static void Main(string[] args)
         {
             //i do believe i need an indefinite amount of arguments, which means i'll probably just call this thing, and there'll be some prompts to actually get them
@@ -86,46 +88,84 @@ namespace TF2CraftingHelper
             Tuple<int, int> nextbuttoncoords = Tuple.Create<int, int>((int)(.7672 * ResolutionX), (int)(.755 * ResolutionY));
 
             //first of all, let's see if i put in any args.
-            //-help shows a help menu related to args, 
+            //-help shows a help menu related to args
             //-s [X] immediately skips to smelting ref, smelts x amount of ref and gets to crafting the requisite amount of tokens (may have to alt-tab out of it, can be up to 8 excess)
             //-c [X] immediately skips to crafting tokens, crafts x tokens, assumes scrap metal and the tokens are already there
+            //-d [X] will change the delay between clicks, the thread.sleep arg in 
             if (args.Length>0)
             {
-                if (args[0].ToLower() == "-s"||args[0].ToLower()=="-smelt")
+                //for the purpose of implementing quickly, manually writing out the potential orders for these flags is fine, but there's a couple args to add on the todo list, so perhaps an order-agonostic function is in... order, if you will
+                int smelti = -1, crafti=-1, delayi=-1;
+                bool helpflag=false;
+                List<string> argtext = new List<string> { };
+                List<string> argvals = new List<string> { };
+                for (i = 0; i < args.Length; i++)
                 {
-                    refct = Convert.ToInt32(args[1]);
-                    totaltokens = refct * 9;
-                    //have to ruin one of my input args to skip past class/slot crafting
-                    slotrow = null;
-                    if (args.Length > 2)
+                    if (args[i] == "help" || args[i] == "-help" || args[i] == "--help")
                     {
-                        if (args[2].ToLower() == "-c" || args[2].ToLower() == "-craft")
+                        helpflag = true;
+                    }
+
+                    if (i % 2 == 0)
+                    {
+                        if (args[i] == "-s" || args[i] == "-smelt")
                         {
-                            totaltokens = Convert.ToInt32(args[3]);
+                            smelti = i/2;
                         }
+                        else if (args[i] == "-c" || args[i] == "-craft")
+                        {
+                            crafti=i/2;
+                        }
+                        else if (args[i] == "-d" || args[i] == "-delay")
+                        {
+                            delayi = i/2;
+                        }
+                        
+                        argtext.Add(args[i]);
+                    }
+                    else {
+                        argvals.Add(args[i]);
                     }
                 }
-                else if (args[0].ToLower() == "-c"||args[0].ToLower()=="-craft")
-                {
-                    totaltokens = Convert.ToInt32(args[1]);
-                    refct = 0;
-                    slotrow = null;
-                    if (args.Length > 2)
-                    {
-                        if (args[2].ToLower() == "-s" || args[2].ToLower() == "-smelt")
-                        {
-                            refct = Convert.ToInt32(args[3]);
-                        }
-                    }
-                }
-                else
+                if (helpflag)
                 {
                     Console.WriteLine("Arguments for TF2CraftingHelper:");
                     Console.WriteLine("-s/-smelt X will skip token prompting and smelt X metal, and attempt to craft X*9 tokens.");
                     Console.WriteLine("-c/-craft X will skip token prompting and metal smelting and attempt to craft X tokens.");
-                    Console.WriteLine("Any other args will show this menu, and running with no arguments will prompt class, slot like usual.");
+                    Console.WriteLine("Combining -s and -c will skip token prompting, smelt the metal specified in the -s argument, then craft the tokens specified in the -c argument.");
+                    Console.WriteLine("-d/-delay X will run the program with a delay of X ms between clicks.  The default delay is 125.");
+                    Console.WriteLine("help/-help will show this menu.");
                     return;
                 }
+                else
+                {
+
+                    if (crafti != -1 && smelti != -1)
+                    {
+                        slotrow = null;
+                        totaltokens = Convert.ToInt32(argvals[crafti]);
+                        refct = Convert.ToInt32(argvals[smelti]);
+                    }
+                    else if (crafti != -1)
+                    {
+                        slotrow = null;
+                        totaltokens = Convert.ToInt32(argvals[crafti]);
+                        refct = 0;
+                    }
+                    else if (smelti != -1)
+                    {
+                        slotrow = null;
+                        refct = Convert.ToInt32(argvals[smelti]);
+                        totaltokens = refct * 9;
+                    }
+
+                    if (delayi != -1)
+                    {
+                        delay = Convert.ToInt32(argvals[delayi]);
+                    }
+
+                }
+
             }
 
 
@@ -600,7 +640,7 @@ namespace TF2CraftingHelper
             //Console.WriteLine("click at x: " + x + " y: "+y);
             
             SetCursorPos(x,y);
-            Thread.Sleep(125);//need to figure out minimum time for cursor input to be registered
+            Thread.Sleep(delay);//need to figure out minimum time for cursor input to be registered
                               //note:  100 looks somewhat good, but it sometimes desyncs, resulted in me mulching my decal'd objector
                               //this is dependent on your computer of course.  i can freely run this while my comp is charging, but when not, it will desync due to worse performance
                               //while you're sussing out your ideal delay, i would recommend 
