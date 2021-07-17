@@ -1,6 +1,6 @@
 # TF2CraftingHelper
 
-Weapon crafting in TF2 is known to be profitable, given a huge sample size, but it's generally considered to be not worth the time spent on the menial task of individually clicking each weapon, and the associated arm strain.  This automates the process to some extent, you look at where the items you want to craft are in your inventory, enter it into the program, and then let it go to work mulching all of them.
+Weapon crafting in TF2 is known to be profitable, given a huge sample size, but it's generally considered to be not worth the time spent on the menial task of individually clicking each weapon, and not worth the arm strain of repeatedly moving the mouse to the right spot over and over.  This automates the process to some extent, you look at where the items you want to craft are in your inventory, enter it into the program, and then let it go to work mulching all of them.
 
 ## How to use
 
@@ -31,11 +31,8 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 ## Known issues
 
 * If you're crafting a number of weapons for class tokens that is indivisible by 3, the last craft will take 1 or 2 weapons, **deduct the stack entirely**, and move on, despite those weapons not having actually been destroyed.  If there are slot token items after this last class weapon slot, the inventory slot for all of these will be wrong.
-* If you're crafting with wildcards, and the wildcard is between 2 non-wildcard stacks, and the stack before it is deducted before completing a set of 3, the third one will be the first non-wildcard element.  This can either look silly (if you aren't using many wildcards), or make you end up with a stack of 3 wildcards only at the end of class token crafting (if you are)
 
 ## To do
 
-* Command line arguments have been implemented, but combining them is currently not.  Allow use of -s and -c together.
-* Allow -smelt and -craft to be used as aliases for these.
 * Maybe make a flag that will allow 4 arguments per item, position and quantity like usual, as well as stack count, which can help if you picked up 20+ crafted items each with their own individual stack, rather than entering all of them as r c 1, or manually crafting them first.
 * Make a command-line flag that will configure the delay between clicks so it doesn't have to be recompiled to get a new delay.
