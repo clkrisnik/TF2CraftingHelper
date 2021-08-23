@@ -18,13 +18,13 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 
 * This is currently made for a 1280x600 resolution.  I have tried to make this a function of ResolutionX and ResolutionY, but I cannot guarantee that anything that isn't 1280x600 will have clicks in the proper locations.
 
-* This is limited by your processor speed, you can configure its delay by using the -d command line argument.  It can be run comfortably on a 125ms delay on a budget gaming laptop from 2016, so I'd generally be inclined to say you can run it faster.  I would generally recommend not running this when anything you care about is craftable, just in case of a data entry issue on your part, but especially not when it's in either R0c1 or R0c2, as these correspond to menu items and can easily be mulched if you aren't careful.  This especially goes if you're trying to figure out what you want for your delay.
+* This is limited by your processor speed, you can configure its delay by using the -d command line argument.  It can be run comfortably on a 125ms delay on a budget gaming laptop from 2016, so I'd generally be inclined to say you can run it faster.  
+
+* I would generally recommend not running this when anything you care about is craftable, just in case of a data entry issue on your part, but especially not when it's in either R0c1 or R0c2, as these correspond to menu items and can easily be mulched if you aren't careful.  This especially goes if you're trying to figure out what you want for your delay.
 
 * Additionally, the speed at which inventory loads is influenced by your backpack size.  I get desyncs if my backpack size goes over 750, it can be thinned out just by exchanging a ref stockpile for keys.
 
-* Occasionally, if you have an item that's stacked alongside another identical one that's in a different stack for some reason (e.g. contract reward, crafted text, gifted text), the order of these 2 stacks is essentially random.  This does not apply to achievement items, they will be in the same stack as any other craft wep.  If they're on your last page, they won't get mulched.  However, I would enter these last (or just get non-craftable versions of any unique weapon you want to keep, it's only a scrap per).
-
-* This stacking issue is relevant with respect to wildcards, if the wildcard item deducts from a large stack expecting a stack of 1, the slot will be wrong, and vice versa.  Manually crafting these gifted/crafted items doesn't take much time, minimizes the chance of a data entry error, and minimizes the chance of a wrong stack deduction error.
+* Occasionally, if you have an item that's stacked alongside another identical one that's in a different stack for some reason (e.g. contract reward, crafted text, gifted text), the order of these 2 stacks is essentially random.  This does not apply to achievement items, they will be in the same stack as any other craft wep.  If they're on your last page, they won't get mulched.  However, I would enter these last (or just get non-craftable versions of any unique weapon you want to keep, it's only a scrap per).  This stacking issue is relevant with respect to wildcards, if the wildcard item deducts from a large stack expecting a stack of 1, the slot will be wrong, and vice versa.  Manually crafting these gifted/crafted items doesn't take much time, minimizes the chance of a data entry error, and minimizes the chance of a wrong stack deduction error.
 
 ## Command-line arguments
 
@@ -41,3 +41,4 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 ## To do
 
 * Maybe make a flag that will allow 4 arguments per item, position and quantity like usual, as well as stack count, which can help if you picked up 20+ crafted items each with their own individual stack, rather than entering all of them as r c 1, or manually crafting them first.
+* Create a mode that utilizes Rebuild Class/Slot token, 2 prompts for class/slot token each, also will ask for the alphabetical order of these class spots relative to the other (necessary to get the spots right)
