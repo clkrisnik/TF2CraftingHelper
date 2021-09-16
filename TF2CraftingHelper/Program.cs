@@ -19,6 +19,12 @@ namespace TF2CraftingHelper
         public int quantity;//self-explanatory
         public bool wildcard;
     }
+
+    class RebuildInstructions {
+        public bool order;//false means that the input token (e.g. class token - demoman) is before the desired token (e.g. class token - scout) in the alphabet
+        //this needs to be done because you could, say, recraft soldier stuff into scout stuff, where scout is before soldier in the alphabet, so it'll display the other way.
+        public List<InventoryItem> items;
+    }
    
     class Program
     {
@@ -54,11 +60,14 @@ namespace TF2CraftingHelper
             //wait no.  this will not work unless i transition between class and slot regularly.  i do not want to do this.  it's easier to start in front and decrement each class/slot's slot upon destroying a stack of craft weps.
             List<InventoryItem> classtokens = new List<InventoryItem> { };
             List<InventoryItem> slottokens = new List<InventoryItem> { };
+            RebuildInstructions rebuildclasstokens = new RebuildInstructions { order = false, items=new List<InventoryItem> { } };
+            RebuildInstructions rebuildslottokens = new RebuildInstructions { order = false, items=new List<InventoryItem> { } };
             double test = 0.0;//never actually used by anything other than tryparse
             string slotrow = "1";
             string slotcol = "1";
             string qty = "1";//need string so i can detect a non-number, so i can stop gettign stuff there
             int totaltokens = 0;
+            bool rebuildflag = false;
             bool wildcardflag = false;
             int wildcardct = 0;
             int nonwildcardct = 0;
@@ -106,6 +115,11 @@ namespace TF2CraftingHelper
                         helpflag = true;
                     }
 
+                    if (args[i] == "-r" || args[i] == "-recraft")
+                    {
+                        rebuildflag = true;
+                    }
+
                     if (i % 2 == 0)
                     {
                         if (args[i] == "-s" || args[i] == "-smelt")
@@ -130,6 +144,7 @@ namespace TF2CraftingHelper
                 if (helpflag)
                 {
                     Console.WriteLine("Arguments for TF2CraftingHelper:");
+                    Console.WriteLine("-r/-recraft X will add a prompt, the first prompts will use Fabricate Token like usual, then another prompt will show that will be for the weapons used in Rebuild Token.");
                     Console.WriteLine("-s/-smelt X will skip token prompting and smelt X metal, and attempt to craft X*9 tokens.");
                     Console.WriteLine("-c/-craft X will skip token prompting and metal smelting and attempt to craft X tokens.");
                     Console.WriteLine("Combining -s and -c will skip token prompting, smelt the metal specified in the -s argument, then craft the tokens specified in the -c argument.");
@@ -234,9 +249,74 @@ namespace TF2CraftingHelper
                 totaltokens = Math.Max(slottokens.Sum(s => s.quantity) / 3, classtokens.Sum(c => c.quantity) / 3);
                 refct = (int)Math.Ceiling(Math.Max(slottokens.Sum(s => s.quantity) / 27.0, classtokens.Sum(c => c.quantity) / 27.0));
             }
+
+            //time for potential rebuild candidates.  similar in some respects to the original prompt, it'll go in another order, the important stuff is alphabetical order
+            if (rebuildflag)
+            {
+                slotrow = "1";
+                slotcol = "1";
+                qty = "1";
+                char shouldcontinue= ' ';
+                //okay, so, i feel like in the spirit of crossing my t's and dotting my i's, i will still prompt for order on the slot part, just suggest that, in all likelihood your input is secondary, and so is going to be later than anything else
+                Console.WriteLine("Is your desired class before your input class tokens in the alphabet? (y/n) (for example, if you're putting in Soldier class tokens to produce Scout class tokens, you answer y)");
+                Console.WriteLine("Answer Z if you aren't recrafting class tokens.");
+                shouldcontinue = Console.ReadLine().ToUpper()[0];
+                rebuildclasstokens.order =  shouldcontinue== 'Y';
+
+                while (shouldcontinue!='Z'&&Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
+                {
+
+                    //slot prompt
+                    Console.WriteLine("Put in your row for a class token item.");
+                    slotrow = Console.ReadLine();
+                    if (Double.TryParse(slotrow, out test))
+                    {
+                        Console.WriteLine("Put in your column for this class token item.");
+                        slotcol = Console.ReadLine();
+                        Console.WriteLine("Put in your quantity for this item.");
+                        qty = Console.ReadLine();
+                        if (Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
+                        {
+                            //these are all numeric values, which means that it's on.  insert this guy.
+                            rebuildclasstokens.items.Add(new InventoryItem { slot = 6 * Convert.ToInt32(slotrow) + Convert.ToInt32(slotcol), quantity = Convert.ToInt32(qty) });
+                        }
+                    }
+                }
+                slotrow = "1";
+                slotcol = "1";
+                qty = "1";
+                //okay, so, i feel like in the spirit of crossing my t's and dotting my i's, i will still prompt for order on the slot part, just suggest that, in all likelihood your input is secondary, and so is going to be later than anything else
+                Console.WriteLine("Is your desired slot before your input slot tokens in the alphabet? (y/n) (note that the answer, if you're putting in secondary tokens, will always be yes.)");
+                Console.WriteLine("Answer Z if you aren't recrafting slot tokens.");
+                shouldcontinue = Console.ReadLine().ToUpper()[0];
+                rebuildslottokens.order = shouldcontinue == 'Y';
+                while (shouldcontinue!='Z'&&Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
+                {
+
+                    //slot prompt
+                    Console.WriteLine("Put in your row for a slot token item.");
+                    slotrow = Console.ReadLine();
+                    if (Double.TryParse(slotrow, out test))
+                    {
+                        Console.WriteLine("Put in your column for this slot token item.");
+                        slotcol = Console.ReadLine();
+                        Console.WriteLine("Put in your quantity for this item.");
+                        qty = Console.ReadLine();
+                        if (Double.TryParse(slotrow, out test) && Double.TryParse(slotcol, out test) && Double.TryParse(qty, out test))
+                        {
+                            //these are all numeric values, which means that it's on.  insert this guy.
+                            rebuildslottokens.items.Add(new InventoryItem { slot = 6 * Convert.ToInt32(slotrow) + Convert.ToInt32(slotcol), quantity = Convert.ToInt32(qty) });
+                        }
+                    }
+                }
+
+                totaltokens = Math.Max(totaltokens, Math.Max(rebuildclasstokens.items.Sum(s => s.quantity), rebuildslottokens.items.Sum(s => s.quantity)));
+                refct = Math.Max(refct, (int)Math.Ceiling(Math.Max(rebuildclasstokens.items.Sum(s=>s.quantity), rebuildslottokens.items.Sum(s => s.quantity))/9.0));
+            }
+            
             //okay, so i've got the easy console application prompt stuff knocked out in like 15 minutes.  time for the big boy problem:  determine where:
             //each slot in the grid lies, probably can make this a function of pixels rather than hardcoding in spots for all the 18 slots
-            //each next button.  i think i'm going to put in the bare minimum on the paging part, i'm sure there's efficiency in paging that i can get to, but god i don't want to make you put in anotehr prompt. this ship has one setting, baby, and it's forward!
+            //each next button.  i think i'm going to put in the bare minimum on the paging part, i'm sure there's efficiency in paging that i can get to, but god i don't want to make you put in another prompt. this ship has one setting, and it's forward!
             //next button is at 982 length 453 height
             //the fabricate class/slot token centers are roughly at 358 px length, class and slot are 229 and 247 height, respectively
             //within each of these:
@@ -301,27 +381,14 @@ namespace TF2CraftingHelper
                             {
                                 induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
                                 temptoprow -= 3;
-                                Console.WriteLine("going to next page");
+                                //Console.WriteLine("going to next page");
                             }
                             induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
 
                             if (classtokens.First(c => c.wildcard == true).quantity <= 0)
                             {
 
-                                foreach (InventoryItem item in classtokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
-                                foreach (InventoryItem item in slottokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
+                                deduct(classtokens.Where(c => c.wildcard == true).First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
                                 classtokens.Remove(classtokens.Where(c => c.wildcard == true).First());
                                 if (classtokens.Any())
                                 {
@@ -351,27 +418,14 @@ namespace TF2CraftingHelper
                             {
                                 induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
                                 temptoprow -= 3;
-                                Console.WriteLine("going to next page");
+                                //Console.WriteLine("going to next page");
                             }
                             induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
 
                             if (classtokens.First(c => c.wildcard == false).quantity <= 0)
                             {
 
-                                foreach (InventoryItem item in classtokens)
-                                {
-                                    if (item.slot > classtokens.First(c => c.wildcard == false).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
-                                foreach (InventoryItem item in slottokens)
-                                {
-                                    if (item.slot > classtokens.First(c => c.wildcard == false).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
+                                deduct(classtokens.Where(c => c.wildcard == false).First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
                                 classtokens.Remove(classtokens.Where(c => c.wildcard == false).First());
                                 if (classtokens.Any())
                                 {
@@ -402,27 +456,14 @@ namespace TF2CraftingHelper
                             {
                                 induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
                                 temptoprow -= 3;
-                                Console.WriteLine("going to next page");
+                                //Console.WriteLine("going to next page");
                             }
                             induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
                             classtokens.First().quantity -= 1;
                             if (classtokens.First().quantity <= 0)
                             {
 
-                                foreach (InventoryItem item in classtokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
-                                foreach (InventoryItem item in slottokens)
-                                {
-                                    if (item.slot > classtokens.ElementAt(0).slot)
-                                    {
-                                        item.slot -= 1;
-                                    }
-                                }
+                                deduct(classtokens.First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
                                 classtokens.RemoveAt(0);
                                 if (classtokens.Any())
                                 {
@@ -440,7 +481,7 @@ namespace TF2CraftingHelper
                         clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
                         Thread.Sleep(125);
                         induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
-                        Console.WriteLine("one craft done");
+                        //Console.WriteLine("one craft done");
                     }
                 }
             }
@@ -472,19 +513,13 @@ namespace TF2CraftingHelper
                         {
                             induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
                             temptoprow -= 3;
-                            Console.WriteLine("going to next page");
+                            //Console.WriteLine("going to next page");
                         }
                         induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
                         slottokens.First().quantity -= 1;
                         if (slottokens.First().quantity <= 0)
                         {
-                            foreach (InventoryItem item in slottokens)
-                            {
-                                if (item.slot > slottokens.ElementAt(0).slot)
-                                {
-                                    item.slot -= 1;
-                                }
-                            }
+                            deduct(slottokens.First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
                             slottokens.RemoveAt(0);
                             if (slottokens.Any())
                             {
@@ -498,34 +533,132 @@ namespace TF2CraftingHelper
                     clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
                     Thread.Sleep(125);
                     induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
-                    Console.WriteLine("one craft done");
+                    //Console.WriteLine("one craft done");
                 }
             }
 
-            startref();
-            for (i = 0; i < refct; i++)
+            if (rebuildflag)
             {
-                induceclick(craftingmenucolpos.First(), craftingheight);
-                induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
-                induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
-                clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(125);
-                induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
+                bool didacraft = false;
+                //first, see if there's any rebuild class.  note that wildcards do not exist here, as you're only using 1 weapon.
+                startrebuildclass();
+                while (rebuildclasstokens.items.Any())
+                {
+                    toprow = rebuildclasstokens.items.First().slot / 6;
+                    topcol = rebuildclasstokens.items.First().slot % 6;
+                    while (rebuildclasstokens.items.First().quantity <= 0)
+                    {
+                        rebuildclasstokens.items.RemoveAt(0);
+                        if (rebuildclasstokens.items.Any())
+                        {
+                            toprow = rebuildclasstokens.items.First().slot / 6;
+                            topcol = rebuildclasstokens.items.First().slot % 6;
+                        }
+                    }
+                    induceclick(craftingmenucolpos.ElementAt(0), craftingheight);
+                    //goes weapon, then token
+                    temptoprow = toprow;
+                    while (temptoprow > 2)
+                    {
+                        induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
+                        temptoprow -= 3;
+                        //Console.WriteLine("going to next page");
+                    }
+                    induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
+                    rebuildclasstokens.items.First().quantity -= 1;
+                    if (rebuildclasstokens.items.First().quantity <= 0)
+                    {
+                        deduct(rebuildclasstokens.items.First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
+                        rebuildclasstokens.items.RemoveAt(0);
+                        if (rebuildclasstokens.items.Any())
+                        {
+                            toprow = rebuildclasstokens.items.First().slot / 6;
+                            topcol = rebuildclasstokens.items.First().slot % 6;
+                        }
+                    }
+                    induceclick(craftingmenucolpos.ElementAt(1), craftingheight);
+                    //this is where i determine if order should be used.  order true means deisred before input, so click 1 on first, and 2 on all others.  order false means always click 1.
+                    induceclick(rebuildclasstokens.order && didacraft ? cpos.ElementAt(2) : cpos.ElementAt(1), rpos.ElementAt(0));
+                    induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
+                    clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
+                    Thread.Sleep(125);
+                    induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
+                    didacraft = true;
+                }
+                didacraft = false;
+                startrebuildslot();
+                while (rebuildslottokens.items.Any())
+                {
+                    toprow = rebuildslottokens.items.First().slot / 6;
+                    topcol = rebuildslottokens.items.First().slot % 6;
+                    while (rebuildslottokens.items.First().quantity <= 0)
+                    {
+                        rebuildslottokens.items.RemoveAt(0);
+                        if (rebuildslottokens.items.Any())
+                        {
+                            toprow = rebuildslottokens.items.First().slot / 6;
+                            topcol = rebuildslottokens.items.First().slot % 6;
+                        }
+                    }
+                    induceclick(craftingmenucolpos.ElementAt(0), craftingheight);
+                    //goes weapon, then token
+                    temptoprow = toprow;
+                    while (temptoprow > 2)
+                    {
+                        induceclick(nextbuttoncoords.Item1, nextbuttoncoords.Item2);
+                        temptoprow -= 3;
+                        //Console.WriteLine("going to next page");
+                    }
+                    induceclick(cpos.ElementAt(topcol), rpos.ElementAt(temptoprow));
+                    rebuildslottokens.items.First().quantity -= 1;
+                    if (rebuildslottokens.items.First().quantity <= 0)
+                    {
+                        deduct(rebuildslottokens.items.First().slot, classtokens, slottokens, rebuildclasstokens.items, rebuildslottokens.items);
+                        rebuildslottokens.items.RemoveAt(0);
+                        if (rebuildslottokens.items.Any())
+                        {
+                            toprow = rebuildslottokens.items.First().slot / 6;
+                            topcol = rebuildslottokens.items.First().slot % 6;
+                        }
+                    }
+                    induceclick(craftingmenucolpos.ElementAt(1), craftingheight);
+                    //this is where i determine if order should be used.  order true means deisred before input, so click 1 on first, and 2 on all others.  order false means always click 1.
+                    induceclick(rebuildslottokens.order && didacraft ? cpos.ElementAt(2) : cpos.ElementAt(1), rpos.ElementAt(0));
+                    induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
+                    clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
+                    Thread.Sleep(125);
+                    induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
+                    didacraft = true;
+                }
+
             }
 
-            refct = refct*3;
-            startrec();
-            for (i = 0; i < refct; i++)
+            if (refct > 0)
             {
-                induceclick(craftingmenucolpos.First(), craftingheight);
-                induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
-                induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
-                clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
-                Thread.Sleep(125);
-                induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
-            }
-            //the tokens are created, the metal is scrapped, and now time for gambling.
+                startref();
+                for (i = 0; i < refct; i++)
+                {
+                    induceclick(craftingmenucolpos.First(), craftingheight);
+                    induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
+                    induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
+                    clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
+                    Thread.Sleep(125);
+                    induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
+                }
 
+                refct = refct * 3;
+                startrec();
+                for (i = 0; i < refct; i++)
+                {
+                    induceclick(craftingmenucolpos.First(), craftingheight);
+                    induceclick(cpos.ElementAt(1), rpos.ElementAt(0));
+                    induceclick(craftbuttoncoords.Item1, craftbuttoncoords.Item2);
+                    clickokoncraft(okbuttoncoords.Item1, okbuttoncoords.Item2);
+                    Thread.Sleep(125);
+                    induceclick(continuebuttoncoords.Item1, continuebuttoncoords.Item2);
+                }
+                //the tokens are created, the metal is scrapped, and now time for gambling.
+            }
             startfabclassweps();
             int j = 0;
             for (i = 0; i < totaltokens; i++)
@@ -543,6 +676,38 @@ namespace TF2CraftingHelper
             }
             Console.ReadKey();
             return;
+        }
+
+        public static void deduct(int slot, List<InventoryItem> classitems, List<InventoryItem> slotitems, List<InventoryItem> rclass, List<InventoryItem> rslot)
+        {
+            foreach (InventoryItem item in classitems)
+            {
+                if (item.slot > slot)
+                {
+                    item.slot -= 1;
+                }
+            }
+            foreach (InventoryItem item in slotitems)
+            {
+                if (item.slot > slot)
+                {
+                    item.slot -= 1;
+                }
+            }
+            foreach (InventoryItem item in rclass)
+            {
+                if (item.slot > slot)
+                {
+                    item.slot -= 1;
+                }
+            }
+            foreach (InventoryItem item in rslot)
+            {
+                if (item.slot > slot)
+                {
+                    item.slot -= 1;
+                }
+            }
         }
 
         public static void startclass()
@@ -575,6 +740,23 @@ namespace TF2CraftingHelper
         public static void startrec()
         {
             int classy = (int)(0.5317 * ResolutionY);
+            int classx = (int)(0.2719 * ResolutionX);
+            induceclick(classx, classy);
+            return;
+        }
+
+        //rebuild class is is y 264, slot is y 282
+        public static void startrebuildclass()
+        {
+            int classy = (int)(0.44 * ResolutionY);
+            int classx = (int)(0.2719 * ResolutionX);
+            induceclick(classx, classy);
+            return;
+        }
+
+        public static void startrebuildslot()
+        {
+            int classy = (int)(0.47 * ResolutionY);
             int classx = (int)(0.2719 * ResolutionX);
             induceclick(classx, classy);
             return;
@@ -620,7 +802,7 @@ namespace TF2CraftingHelper
             Color btncolor;
             int i = 0;//note that using an indivisible amount of weapons may cause some hanging... you can obviously manually resolve it, but i think i'll try instead to cut it off at 5s
             bool craftdone = false;
-            while (!craftdone&&i<50)
+            while (!craftdone&&i<100)
             {
                 Thread.Sleep(125);
                 i++;
