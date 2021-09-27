@@ -32,6 +32,7 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 * -s/-smelt [X] will skip token crafting, and immediately go to metal smelting then fabricate class weapons, smelting X metal, and crafting X\*9 tokens.
 * Combining -c and -s will skip token crafting, and smelt the -s argument's amount of metal, and craft the -c argument's amount of tokens.
 * -d/-delay [X] will configure the delay between clicks, in milliseconds.
+* -r/-recraft [x] will add a prompt, the first prompts will use Fabricate Token like usual, then another 2 prompts will show that will be for the weapons used in Rebuild Class/Slot Token.
 * help will display a guide to these arguments.
 
 ## Known issues
@@ -41,4 +42,3 @@ Weapon crafting in TF2 is known to be profitable, given a huge sample size, but 
 ## To do
 
 * Maybe make a flag that will allow 4 arguments per item, position and quantity like usual, as well as stack count, which can help if you picked up 20+ crafted items each with their own individual stack, rather than entering all of them as r c 1, or manually crafting them first.
-* Create a mode that utilizes Rebuild Class/Slot token, 2 prompts for class/slot token each, also will ask for the alphabetical order of these class spots relative to the other (necessary to get the spots right)
